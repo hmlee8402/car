@@ -6,6 +6,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'AW-18336138289');
+  gtag('config', 'G-9VGRT0F6H6'); // Google Analytics 4 기본 태그
 </script>
 
 <!-- Google Ads 전환 추적 -->
@@ -71,6 +72,12 @@
       const link = e.target.closest('a[href^="tel:"]');
 
       if (!link) return;
+
+      // GA4 이벤트: 전화 문의 클릭
+      gtag('event', 'phone_click', {
+        link_text: (link.textContent || '').trim().slice(0, 50),
+        phone_number: (link.getAttribute('href') || '').replace('tel:', '')
+      });
 
       gtag('event', 'conversion', {
         send_to: 'AW-18336138289/Z2vCCJfqsqUdELGIradE',
@@ -686,7 +693,9 @@ a{color:inherit}
     box.textContent='접수 중입니다...';
     var body=new URLSearchParams({source:source,name:name,phone:fmtTel(tel),car:car,agree:'동의'});
     fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:body})
-      .then(function(){box.className='form-msg ok';box.textContent='상담 신청이 접수되었습니다. 24시간 이내에 연락드리겠습니다.';form.reset();showDone(name)})
+      .then(function(){box.className='form-msg ok';box.textContent='상담 신청이 접수되었습니다. 24시간 이내에 연락드리겠습니다.';form.reset();showDone(name);
+        /* GA4 이벤트: 간편 상담 신청 완료 (접수 성공 시점에 1회) */
+        if(source==='간편 상담 신청(위)'&&typeof gtag==='function'){gtag('event','generate_lead',{form_name:'easy_consult'})}})
       .catch(function(){box.className='form-msg err';box.textContent='접수에 실패했습니다. 잠시 후 다시 시도하시거나 010-5708-0412로 전화해 주세요.'})
       .then(function(){btn.disabled=false});
   }
